@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtWidgets import QLabel, QFrame, QPushButton, QTextEdit
+from PyQt5.QtWidgets import QLabel, QFrame, QPushButton, QTextEdit, QCheckBox, QMessageBox
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import QIcon
 
@@ -8,7 +8,7 @@ class Note(QWidget):
     def __init__(self):
         super().__init__()
         self.offset = None
-        self.title = "便利貼"
+        self.title = "PyPostits"
         self.resize(400, 300)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.SplashScreen | Qt.WindowStaysOnTopHint)
         
@@ -18,8 +18,21 @@ class Note(QWidget):
 
         self.title_label = QLabel(self.top_frame)
         self.title_label.setText(self.title)
-        self.title_label.setGeometry(5, 5, 60, 30)
-        self.title_label.setStyleSheet("font-size: 18px;")
+        self.title_label.setGeometry(15, 3, 90, 40)
+        self.title_label.setStyleSheet("font: normal normal 20px \"Arial\";")
+
+        self.check_done = QCheckBox(self.top_frame)
+        self.check_done.setText("Done")
+        self.check_done.setGeometry(120, 3, 60, 40)
+        self.check_done.setChecked(False)
+
+        self.menu_button = QPushButton(self.top_frame)
+        self.menu_button.setIcon(QIcon("images/menu.png"))
+        self.menu_button.setGeometry(320, 0, 40, 40)
+        self.menu_button.setStyleSheet("""
+            QPushButton{background: #FFF68F;border: none;} QPushButton:hover{background: #CDC673;}
+        """)
+        self.menu_button.clicked.connect(self.menu_event)
 
         self.close_button = QPushButton(self.top_frame)
         self.close_button.setIcon(QIcon("images/close.png"))
@@ -46,14 +59,23 @@ class Note(QWidget):
         if event.button() == Qt.LeftButton:
             self.offset = None
 
-    def close_event(self):
-        sys.exit()
+    def menu_event(self):
+        pass
 
-class Main_Window(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setGeometry()
-        self.setWindowTitle("便利貼")
+    def close_event(self):
+        if not self.check_done.isChecked():
+            check_message = QMessageBox(self)
+            check_message.setWindowTitle("PyPostits")
+            check_message.setText("You have not completed this task.\nDo you want to close it?")
+            check_message.setIcon(4)
+            check_message.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            check_message.setDefaultButton(QMessageBox.No)
+
+            ret = check_message.exec()
+            if ret == QMessageBox.Yes:
+                sys.exit()
+        else:
+            sys.exit()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
